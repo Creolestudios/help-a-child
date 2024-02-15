@@ -20,7 +20,6 @@ export const MasonryGridWrapper = styled.div`
 
   .new-post-item {
     .grid-item {
-      /* background-image: url(https://admin.villapinedo.nl/assets/3faa0d1e-8c82-4eeb-9f33-a7d494cdf084); */
       background-repeat: no-repeat;
       background-size: cover;
       border-radius: 8px;
