@@ -1,0 +1,106 @@
+# image: node:19.2.0
+
+# stages:
+#   - deploy
+
+# # Initialize system
+# before_script:
+#   # Check for ssh-agent + rsync and install if not present
+#   - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y  )"
+#   - "which rsync || ( apt-get update -y && apt-get install rsync -y )"
+#   - "which git || ( apt-get update -y && apt-get install git -y )"
+#   - eval $(ssh-agent -s)
+
+#   # Inject the remote's private key
+#   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#   - mkdir -p ~/.ssh
+#   - chmod 700 ~/.ssh
+
+#   # Append keyscan output into known hosts
+#   - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
+#   - chmod 644 ~/.ssh/known_hosts
+
+# DEVELOPMENT DEPLOY SCRIPT
+deploy_dev:
+  image: node:19.2.0
+  stage: deploy
+  variables:
+    SERVER_PROJECT_DIR: $PROJECT_BASE_PATH/development
+  tags:
+    # Runner name
+    - deployment-frontend
+  before_script:
+    # Check for ssh-agent + rsync and install if not present
+    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y  )"
+    - "which rsync || ( apt-get update -y && apt-get install rsync -y )"
+    - "which git || ( apt-get update -y && apt-get install git -y )"
+    - eval $(ssh-agent -s)
+
+    # Inject the remote's private key
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+
+    # Append keyscan output into known hosts
+    - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    # Scripts to resolve gitlab variables
+    - INSTALL_DEPS_SCRIPT="cd $SERVER_PROJECT_DIR/vp-website-front && npm i"
+    - BUILD_SCRIPT="cd $SERVER_PROJECT_DIR/vp-website-front && npm run build"
+    - START_PROJECT_SCRIPT="cd $SERVER_PROJECT_DIR/vp-website-front && npm run server:dev"
+
+    # Inject .env
+    - cat $DEV_ENV_FILE > .env
+
+    # Inject .sentryclirc
+    - cat $SENTRY_CLI_RC > .sentryclirc
+
+    # Copy all the content
+    - rsync -aO --filter="merge rsync_ignore.txt" $CI_PROJECT_DIR $SERVER_USER@$SERVER_IP:$SERVER_PROJECT_DIR
+
+    # Install npm dependencies
+    - ssh $SERVER_USER@$SERVER_IP pwd
+    - ssh $SERVER_USER@$SERVER_IP $INSTALL_DEPS_SCRIPT
+
+    # Delete pm2 process if it exists
+    - ssh $SERVER_USER@$SERVER_IP 'pm2 delete -s vp-website-dev || :'
+
+    # Build the project
+    - ssh $SERVER_USER@$SERVER_IP $BUILD_SCRIPT
+
+    # Start pm2 process
+    - ssh $SERVER_USER@$SERVER_IP $START_PROJECT_SCRIPT
+
+  environment:
+    name: development
+  only:
+    # Trigger deployments only from development branch
+    - development
+
+variables:
+  DOCKER_IMAGE: "europe-west4-docker.pkg.dev/coherent-racer-225116/vp-docker-registry/website"
+
+## STAGING DEPLOY
+
+stg-build-job:
+  stage: build
+  only:
+    refs:
+      - staging
+  script:
+    - cat ${STAGING_ENV_FILE} > .env
+    - cat ${GITLAB_JSON} | docker login -u _json_key --password-stdin https://europe-west4-docker.pkg.dev
+    - docker build --no-cache --pull -t ${DOCKER_IMAGE}:latest -t ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA} .
+    - docker push --all-tags ${DOCKER_IMAGE}
+
+stg-deploy-job:
+  stage: deploy
+  only:
+    refs:
+      - staging
+  variables:
+    USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
+  script:
+    - gcloud auth activate-service-account gitlab@coherent-racer-225116.iam.gserviceaccount.com --key-file=${GITLAB_JSON} --project=coherent-racer-225116
+    - kubectl --kubeconfig=${KUBECONFIG} -n sites set image statefulset/stg-sites-website node=${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}

@@ -1,0 +1,15 @@
+export const THEMA = [
+  { name: "Mijn ouders", value: "Mijn ouders" },
+  { name: "Familie", value: "Familie" },
+  { name: "Stiefouders", value: "Stiefouders" },
+  { name: "Mijn woonsituatie", value: "Mijn woonsituatie" },
+  { name: "Rechten", value: "Rechten" },
+  { name: "Gedachten en gevoelens", value: "Gedachten en gevoelens" },
+  { name: "Op school", value: "Op school" },
+  { name: "Steun", value: "Steun" },
+  { name: "Liefde", value: "Liefde" },
+  { name: "Ruzie", value: "Ruzie" },
+  { name: "(Geen) contact", value: "(Geen) contact" },
+  { name: "Belangrijke momenten", value: "Belangrijke momenten" },
+  { name: "Wat de F@#CK?!", value: "Wat de F@#CK?!" },
+];
