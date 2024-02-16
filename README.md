@@ -10,7 +10,7 @@ This project centers on assisting children whose parents are separated. The team
 
 # Installation Guide
 
-### Requirements
+### Requirement
 
 - [Nodejs](https://nodejs.org/en/download)
 
@@ -18,16 +18,18 @@ Node.js version 18.17 or higher is required for Directus.
 
 ## Usage
 
-For ForntEnd take a pull using below command >git clone https://github.com/Creolestudios/help-a-child.git
+For ForntEnd take a pull using below command
+
+    >git clone https://github.com/Creolestudios/help-a-child.git
 
 ## Install Dependencies for frontend
 
 ```
 # Now install the dependencies
 
-    >cd help-a-child
+>cd help-a-child
 
-    >npm i
+>npm i
 ```
 
 We are almost done, Now just start the development server.
