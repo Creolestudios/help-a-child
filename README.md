@@ -13,7 +13,6 @@ This project centers on assisting children whose parents are separated. The team
 ### Requirements
 
 - [Nodejs](https://nodejs.org/en/download)
-- [Directus](https://docs.directus.io/self-hosted/cli.html)
 
 Node.js version 18.17 or higher is required for Directus.
 
@@ -21,23 +20,21 @@ Node.js version 18.17 or higher is required for Directus.
 
 For ForntEnd take a pull using below command >git clone https://github.com/Creolestudios/help-a-child.git
 
-For BackEnd Need to setup directus and add DB URL in Directus >npm init directus-project help-a-child-cms
-
 ## Install Dependencies for frontend
 
-Now install the dependencies >cd help-a-child >npm i
+```
+# Now install the dependencies
+
+    >cd help-a-child
+
+    >npm i
+```
 
 We are almost done, Now just start the development server.
 
 For Frontend.
 
     >npm run dev
-
-For Backend.
-
-    >npx directus start
-
-Done! Now open localhost:3000 for front end And http://0.0.0.0:8055/admin/login for backend in your browser.
 
 ## Build & Deploy
 
@@ -49,6 +46,6 @@ Done! Now open localhost:3000 for front end And http://0.0.0.0:8055/admin/login 
 
 ```
 
-# Find Demo
+# Demo
 
-[Demo](https://vimeo.com/manage/videos/913307178/e96f3abe30)
+[Click Here](https://vimeo.com/manage/videos/913307178/e96f3abe30)
